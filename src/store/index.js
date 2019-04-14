@@ -1,0 +1,60 @@
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+// Auth mutations
+import getters from './getters'
+import actions from './actions'
+import mutations from './mutations'
+
+// Modules
+
+// Plugins
+import * as cookies from 'js-cookie'
+import createPersistedState from 'vuex-persistedstate'
+
+Vue.use(Vuex);
+
+export const store = new Vuex.Store({
+    state: {
+        auth_token: '',
+        auth_object: {},
+        is_logged_in: false,
+        auth_refresh_token: '',
+        route_progress: 0,
+        show_progress: false
+    },
+    actions,
+    getters,
+    mutations,
+    modules: {
+
+    },
+    plugins: [
+        createPersistedState({
+            key: 'vuex-starter-'+process.env.NODE_ENV,
+            paths: [
+                'is_logged_in',
+                'auth_object',
+                'auth_token',
+                'auth_refresh_token',
+            ],
+            storage: {
+                getItem: (key) => {
+                    // Retrieve the cookie
+                    return cookies.get(key)
+                },
+                setItem: (key, value) => {
+                    // Remove the cookie before setting it
+                    cookies.remove(key);
+
+                    // Set the cookie with new values
+                    return  cookies.set(key, value, {expires: 30})
+                },
+                removeItem: (key) => {
+                    // Remove the cookie
+                    return cookies.remove(key)
+                }
+            }
+        })
+    ]
+});
