@@ -7,6 +7,7 @@ import actions from './actions'
 import mutations from './mutations'
 
 // Modules
+import user from './modules/user'
 
 // Plugins
 import * as cookies from 'js-cookie'
@@ -27,7 +28,7 @@ export const store = new Vuex.Store({
     getters,
     mutations,
     modules: {
-
+        user
     },
     plugins: [
         createPersistedState({
