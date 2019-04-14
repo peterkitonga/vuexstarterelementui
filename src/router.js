@@ -10,6 +10,7 @@ import AuthWrapper from './layouts/auth/Wrapper'
 
 // Views
 import GuestHome from './views/guest/Home.vue'
+import Login from './views/guest/Login.vue'
 import SubscriberHome from './views/auth/dashboards/Subscriber'
 
 import {store} from './store'
@@ -37,6 +38,14 @@ export const router =  new Router({
                   components: {
                       header: GuestHeader,
                       default: GuestHome
+                  }
+              },
+              {
+                  path: '/login',
+                  name: 'login',
+                  components: {
+                      header: GuestHeader,
+                      default: Login
                   }
               }
           ]
