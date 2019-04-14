@@ -1,7 +1,5 @@
 <template>
-    <el-main>
-        
-    </el-main>
+    <el-main></el-main>
 </template>
 
 <script>
