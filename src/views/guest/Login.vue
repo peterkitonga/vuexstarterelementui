@@ -34,7 +34,7 @@
                     login: false
                 },
                 label: {
-                    position: 'left'
+                    position: 'top'
                 },
                 forms: {
                     login: {
