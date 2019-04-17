@@ -98,19 +98,16 @@
                     if (valid) {
                         this.loading.register = true;
                         return this.$store.dispatch(INIT_REGISTER_AUTH_USER, this.forms.register).then(response => {
-                            this.register.first_name = '';
-                            this.register.last_name = '';
-                            this.register.password = '';
-                            this.register.password_confirmation = '';
-
                             this.loading.register = false;
 
                             this.$message({
+                                type: response.status,
                                 showClose: true,
                                 duration: 10000,
                                 message: response.message,
-                                type: response.status
                             });
+
+                            this.$router.push({name: 'login'});
                         }).catch(error => {
                             this.loading.register = false;
                             let message = error.data.message;
