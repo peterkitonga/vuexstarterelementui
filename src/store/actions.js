@@ -16,6 +16,7 @@ import {
     INIT_UPDATE_AUTH_USER_PASSWORD,
     INIT_LOGOUT_AUTH_USER
 } from './types'
+import {store} from "./index";
 
 export default {
     [INIT_REGISTER_AUTH_USER]: ({dispatch, commit}, payload) => {
@@ -44,9 +45,10 @@ export default {
                 // Fetch the logged in user
                 dispatch(INIT_FETCH_AUTH_USER).then(authResponse => {
                     commit(SET_AUTH_LOGIN_STATUS, authResponse);
+                    let role = authResponse['data']['role'];
 
-                    // Redirect to dashboard
-                    router.push({name: 'home'})
+                    // Redirect to the respective dashboard
+                    router.push({name: `${role}.home`})
                 });
                 resolve(response.data)
             }).catch(error => {
