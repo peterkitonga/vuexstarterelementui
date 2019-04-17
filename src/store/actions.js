@@ -46,7 +46,7 @@ export default {
                     commit(SET_AUTH_LOGIN_STATUS, authResponse);
 
                     // Redirect to dashboard
-                    router.push('/home')
+                    router.push({name: 'home'})
                 });
                 resolve(response.data)
             }).catch(error => {
@@ -138,7 +138,7 @@ export default {
                 commit(SET_AUTH_REFRESH_TOKEN, {data: {refresh_token: ''}});
                 commit(SET_AUTH_TOKEN, {data: {token_type: '', access_token: ''}});
                 if (router.currentRoute.name !== 'login') {
-                    router.push('/')
+                    router.push({name: 'login'})
                 }
                 resolve(response.data)
             }).catch(error => {
