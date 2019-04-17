@@ -98,9 +98,32 @@ export const router =  new Router({
                       sidebar: AuthSidebar,
                       header: AuthHeader,
                       default: SubscriberHome
-                  }
+                  },
+                  meta: {auth: true, roles: ['subscriber']}
               }
           ]
       }
   ]
+});
+
+router.beforeEach((to, from, next) => {
+    let role = store.state['auth_object']['role'];
+
+    if (!to.meta.auth) {
+        return next()
+    }
+
+    if (!store.state['is_logged_in']) {
+        return next({name: 'login'})
+    }
+
+    if (!to.meta.roles) {
+        return next()
+    }
+
+    if (to.meta.roles.includes(role)) {
+        return next()
+    }
+
+    next({name: 'denied'})
 });
