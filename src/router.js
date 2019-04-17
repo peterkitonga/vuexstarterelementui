@@ -9,9 +9,13 @@ import AuthHeader from './layouts/auth/Header'
 import AuthWrapper from './layouts/auth/Wrapper'
 
 // Views
-import GuestHome from './views/guest/Home.vue'
-import Login from './views/guest/Login.vue'
-import Register from './views/guest/Register.vue'
+import GuestHome from './views/guest/Home'
+import Login from './views/guest/Login'
+import Register from './views/guest/Register'
+import Activate from './views/guest/Activate'
+import Forgot from './views/guest/Forgot'
+import Reset from './views/guest/Reset'
+
 import SubscriberHome from './views/auth/dashboards/Subscriber'
 
 import {store} from './store'
@@ -55,6 +59,30 @@ export const router =  new Router({
                   components: {
                       header: GuestHeader,
                       default: Register
+                  }
+              },
+              {
+                  path: '/activate/:code',
+                  name: 'activate',
+                  components: {
+                      header: GuestHeader,
+                      default: Activate
+                  }
+              },
+              {
+                  path: '/forgot',
+                  name: 'forgot',
+                  components: {
+                      header: GuestHeader,
+                      default: Forgot
+                  }
+              },
+              {
+                  path: '/reset/password/:token',
+                  name: 'reset',
+                  components: {
+                      header: GuestHeader,
+                      default: Reset
                   }
               }
           ]
