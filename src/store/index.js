@@ -21,8 +21,7 @@ export const store = new Vuex.Store({
         auth_object: {},
         is_logged_in: false,
         auth_refresh_token: '',
-        route_progress: 0,
-        show_progress: false
+        sidebar_collapse: false,
     },
     actions,
     getters,
@@ -34,10 +33,11 @@ export const store = new Vuex.Store({
         createPersistedState({
             key: 'vuex-starter-'+process.env.NODE_ENV,
             paths: [
-                'is_logged_in',
-                'auth_object',
                 'auth_token',
+                'auth_object',
+                'is_logged_in',
                 'auth_refresh_token',
+                'sidebar_collapse',
             ],
             storage: {
                 getItem: (key) => {
