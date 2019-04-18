@@ -1,6 +1,11 @@
 <template>
-    <el-menu class="el-menu-custom" mode="horizontal" :default-active="this.$route.name" :router="true">
-        <el-menu-item index="logo" route="/">VuexStarter</el-menu-item>
+    <el-menu class="el-menu-custom" mode="horizontal" default-active="collapse" :router="true">
+        <el-menu-item index="collapse" route="#">
+            <el-button type="text" size="mini" plain v-on:click="toggleSidebar">
+                <i class="el-icon-menu"></i>
+            </el-button>
+        </el-menu-item>
+        <el-menu-item index="logo" :route="homeRoute.path">VuexStarter</el-menu-item>
         <el-menu-item index="logout" route="#" style="float: right">
             <el-dropdown @command="handleCommands" trigger="click">
                     <span>
@@ -20,7 +25,23 @@
 
     export default {
         name: "auth-header",
+        computed: {
+            authRole: function () {
+                return this.$store.state['auth_object']['role'];
+            },
+            homeRoute: function () {
+                let that = this;
+                let authRoutes = this.$router.options.routes[1]['children'];
+
+                return authRoutes.find(function (element) {
+                    return element.name === `${that.authRole}.home`;
+                });
+            }
+        },
         methods: {
+            toggleSidebar: function () {
+                this.$store.state['sidebar_collapse'] = this.$store.state['sidebar_collapse'] !== true;
+            },
             handleCommands: function (command) {
                 this[command.method](command.params);
             },
@@ -41,6 +62,9 @@
                     });
                 })
             }
+        },
+        mounted: function () {
+
         }
     }
 </script>
