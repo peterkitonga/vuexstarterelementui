@@ -17,6 +17,8 @@ import Forgot from './views/guest/Forgot'
 import Reset from './views/guest/Reset'
 
 import SubscriberHome from './views/auth/dashboards/Subscriber'
+import AdministratorHome from './views/auth/dashboards/Administrator'
+import UsersIndex from './views/auth/users/Index'
 
 import {store} from './store'
 
@@ -31,7 +33,8 @@ export const router =  new Router({
           component: GuestWrapper,
           beforeEnter: (to, from, next) => {
               if (store.state['is_logged_in']) {
-                  next({name: 'home'})
+                  let role = store.state['auth_object']['role'];
+                  next({name: `${role}.home`})
               } else {
                   next()
               }
@@ -93,13 +96,33 @@ export const router =  new Router({
           children: [
               {
                   path: '/home',
-                  name: 'home',
+                  name: 'subscriber.home',
                   components: {
                       sidebar: AuthSidebar,
                       header: AuthHeader,
                       default: SubscriberHome
                   },
-                  meta: {auth: true, roles: ['subscriber']}
+                  meta: {auth: true, roles: ['subscriber']},
+              },
+              {
+                  path: '/admin/home',
+                  name: 'administrator.home',
+                  components: {
+                      sidebar: AuthSidebar,
+                      header: AuthHeader,
+                      default: AdministratorHome
+                  },
+                  meta: {auth: true, roles: ['administrator']}
+              },
+              {
+                  path: '/users',
+                  name: 'users.index',
+                  components: {
+                      sidebar: AuthSidebar,
+                      header: AuthHeader,
+                      default: UsersIndex
+                  },
+                  meta: {auth: true, roles: ['administrator']}
               }
           ]
       }
