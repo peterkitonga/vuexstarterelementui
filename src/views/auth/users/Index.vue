@@ -300,6 +300,10 @@
                         return this.$store.dispatch(INIT_STORE_USER, this.forms.users.add).then(response => {
                             this.loading.users.add = false;
                             this.dialogs.users.add = false;
+                            this.forms.users.add.first_name = '';
+                            this.forms.users.add.last_name = '';
+                            this.forms.users.add.email = '';
+                            this.forms.users.add.role_select = 0;
 
                             this.$message({
                                 type: response.status,
