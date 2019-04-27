@@ -39,7 +39,8 @@
                             :current-page="tables.users.pagination.current_page"
                             :page-size="tables.users.pagination.per_page"
                             :page-sizes="[5, 10, 25, 50, 100, 200]"
-                            @current-change="handleCurrentPageChange">
+                            @current-change="handleUsersCurrentPageChange"
+                            @size-change="handleUsersPageSizeChange">
                     </el-pagination>
                 </el-card>
             </el-col>
@@ -175,8 +176,12 @@
                     this.tables.users.pagination.current_page = parseInt(response.meta.current_page);
                 })
             },
-            handleCurrentPageChange: function(val) {
+            handleUsersCurrentPageChange: function(val) {
                 this.tables.users.pagination.current_page = val;
+                this.fetchUsers();
+            },
+            handleUsersPageSizeChange: function (val) {
+                this.tables.users.pagination.per_page = val;
                 this.fetchUsers();
             },
             handleCommands: function (command) {
