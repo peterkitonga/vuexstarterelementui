@@ -332,7 +332,7 @@
                                     that.$refs[form].clearValidate(element.field);
 
                                     // pushes error messages from the response to the validator error bag
-                                    that.errors.users.edit[element.field] = element.error;
+                                    that.errors.users.add[element.field] = element.error;
                                 });
 
                                 this.$message({
