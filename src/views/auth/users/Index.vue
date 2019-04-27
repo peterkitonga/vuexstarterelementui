@@ -10,6 +10,7 @@
                     <el-table :data="tables.users.data" :default-sort = "{prop: tables.users.sort.default.column, order: tables.users.sort.default.direction}" style="width: 100%">
                         <el-table-column prop="name" label="Name" sortable></el-table-column>
                         <el-table-column prop="email" label="Email" sortable></el-table-column>
+                        <el-table-column prop="role" label="Role" sortable></el-table-column>
                         <el-table-column prop="is_logged_in" label="Online">
                             <template slot-scope="scope">
                                 <el-tag :type="scope.row.is_logged_in === false ? 'primary' : 'success'" disable-transitions>
@@ -26,7 +27,7 @@
                                     </el-button>
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item :command="{method: 'toggleEditUserDialog', params: scope.row}">Edit</el-dropdown-item>
-                                        <el-dropdown-item :command="{method: 'toggleEditUserRoleDialog', params: scope.row}">Reassign Role</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.row.id !== authUser.id" :command="{method: 'toggleEditUserRoleDialog', params: scope.row}">Reassign Role</el-dropdown-item>
                                         <el-dropdown-item v-if="scope.row.is_deactivated === true" :command="{method: 'toggleReactivateConfirmation', params: {id: scope.row.id}}">Reactivate</el-dropdown-item>
                                         <el-dropdown-item v-if="scope.row.is_deactivated === false" :command="{method: 'toggleDeactivateConfirmation', params: {id: scope.row.id}}">Deactivate</el-dropdown-item>
                                     </el-dropdown-menu>
@@ -69,12 +70,30 @@
                     <el-button :loading="loading.users.edit" type="primary" @click="updateUserDetails('forms.users.edit')">Confirm</el-button>
                 </span>
             </el-dialog>
+
+            <el-dialog title="Reassign Role" :visible.sync="dialogs.users.role">
+                <el-form :label-position="label.position" :model="forms.users.role" ref="forms.users.role" :rules="rules.users.role">
+                    <el-form-item prop="role_select" label="Role" :error="errors.users.role.hasOwnProperty('role_select') ? errors.users.role.role_select : ''">
+                        <el-select v-model="forms.users.role.role_select" value="forms.users.role.role_select" clearable>
+                            <el-option v-for="item in options.roles" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogs.users.role = false">Cancel</el-button>
+                    <el-button :loading="loading.users.role" type="primary" @click="updateUserRole('forms.users.role')">Confirm</el-button>
+                </span>
+            </el-dialog>
         </el-row>
     </el-main>
 </template>
 
 <script>
-    import {INIT_FETCH_PAGINATED_USERS, INIT_UPDATE_USER} from "../../../store/types";
+    import {
+        GET_AUTH_OBJECT,
+        INIT_FETCH_PAGINATED_USERS,
+        INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE
+    } from "../../../store/types";
 
     export default {
         name: "users-index",
@@ -84,6 +103,7 @@
                     users: {
                         add: false,
                         edit: false,
+                        role: false,
                         delete: false
                     }
                 },
@@ -96,6 +116,7 @@
                             first_name: '',
                             last_name: '',
                             email: '',
+                            role_select: 0,
                         },
                         edit: {
                             user_id: 0,
@@ -103,7 +124,30 @@
                             last_name: '',
                             email: '',
                         },
+                        role: {
+                            user_id: 0,
+                            role_select: 0,
+                        }
                     }
+                },
+                options: {
+                    roles: [
+                        {
+                            value: 0,
+                            label: 'Select an option',
+                            disabled: true
+                        },
+                        {
+                            value: 1,
+                            label: 'Administrator',
+                            disabled: false
+                        },
+                        {
+                            value: 2,
+                            label: 'Subscriber',
+                            disabled: false
+                        },
+                    ]
                 },
                 rules: {
                     users: {
@@ -130,6 +174,11 @@
                                 {required: true, message: 'The email field is required', trigger: 'blur'},
                                 {type: 'email', message: 'The email field should be a valid email', trigger: 'blur'}
                             ]
+                        },
+                        role: {
+                            role_select: [
+                                {required: true, message: 'The role field is required', trigger: 'blur'},
+                            ]
                         }
                     }
                 },
@@ -154,15 +203,23 @@
                 },
                 errors: {
                     users: {
-                        edit: {}
+                        add: {},
+                        edit: {},
+                        role: {},
                     }
                 },
                 dialogs: {
                     users: {
+                        add: false,
                         edit: false,
-                        role: false
+                        role: false,
                     }
                 }
+            }
+        },
+        computed: {
+            authUser: function () {
+                return this.$store.getters[GET_AUTH_OBJECT];
             }
         },
         methods: {
@@ -194,7 +251,14 @@
                 this.forms.users.edit.email = params.email;
                 this.dialogs.users.edit = true;
             },
-            toggleEditUserRoleDialog: function () {},
+            toggleEditUserRoleDialog: function (params) {
+                let currentRole = this.options.roles.find(function (element) {
+                    return element.label === params.role.charAt(0).toUpperCase() + params.role.slice(1);
+                });
+                this.forms.users.role.user_id = params.id;
+                this.forms.users.role.role_select = currentRole.value;
+                this.dialogs.users.role = true;
+            },
             toggleReactivateConfirmation: function () {},
             toggleDeactivateConfirmation: function () {},
             updateUserDetails: function (form) {
@@ -233,6 +297,62 @@
 
                                     // pushes error messages from the response to the validator error bag
                                     that.errors.users.edit[element.field] = element.error;
+                                });
+
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: 'Something\'s not right. Please check your inputs',
+                                });
+                            }
+                        })
+                    } else {
+                        return this.$message({
+                            type: 'error',
+                            showClose: true,
+                            duration: 10000,
+                            message: 'Something\'s not right. Please check your inputs',
+                        });
+                    }
+                });
+            },
+            updateUserRole: function (form) {
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+                        this.loading.users.role = true;
+                        return this.$store.dispatch(INIT_UPDATE_USER_ROLE, this.forms.users.role).then(response => {
+                            this.loading.users.role = false;
+                            this.dialogs.users.role = false;
+
+                            this.$message({
+                                type: response.status,
+                                showClose: true,
+                                duration: 10000,
+                                message: response.message,
+                            });
+
+                            this.fetchUsers();
+                        }).catch(error => {
+                            this.loading.users.role = false;
+                            let message = error.data.message;
+
+                            if (message instanceof Array === false)
+                            {
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: error.data.message,
+                                });
+                            } else {
+                                let that = this;
+                                message.forEach(function(element) {
+                                    // clear validation for the field
+                                    that.$refs[form].clearValidate(element.field);
+
+                                    // pushes error messages from the response to the validator error bag
+                                    that.errors.users.role[element.field] = element.error;
                                 });
 
                                 this.$message({
