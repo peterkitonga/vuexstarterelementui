@@ -2,7 +2,7 @@ import {
     GET_ALL_USERS,
     GET_AUTH_TOKEN,
     INIT_FETCH_ALL_USERS,
-    INIT_FETCH_PAGINATED_USERS, SET_ALL_USERS
+    INIT_FETCH_PAGINATED_USERS, INIT_UPDATE_USER, SET_ALL_USERS
 } from '../types'
 import HTTP from '../../http'
 
@@ -57,6 +57,19 @@ const actions = {
                 reject(error.response);
             });
         });
+    },
+    [INIT_UPDATE_USER]: function ({getters, commit}, payload) {
+        return new Promise((resolve, reject) => {
+            HTTP.put(`users/update/${payload.user_id}`, payload, {
+                headers: {
+                    Authorization: getters[GET_AUTH_TOKEN]
+                }
+            }).then(response => {
+                resolve(response.data);
+            }).catch(error => {
+                reject(error.response);
+            });
+        })
     }
 };
 
