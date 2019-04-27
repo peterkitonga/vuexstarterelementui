@@ -5,7 +5,7 @@
                 <el-card>
                     <div slot="header" class="clearfix">
                         <span>Users</span>
-                        <el-button style="float: right; padding: 3px 0" type="text"><i class="el-icon-circle-plus-outline"></i> New</el-button>
+                        <el-button style="float: right; padding: 3px 0" type="text" v-on:click="toggleAddUserDialog"><i class="el-icon-circle-plus-outline"></i> New</el-button>
                     </div>
                     <el-table :data="tables.users.data" :default-sort = "{prop: tables.users.sort.default.column, order: tables.users.sort.default.direction}" style="width: 100%">
                         <el-table-column prop="name" label="Name" sortable></el-table-column>
@@ -47,6 +47,35 @@
             </el-col>
         </el-row>
         <el-row>
+            <el-dialog title="Add User" :visible.sync="dialogs.users.add">
+                <el-form :label-position="label.position" :model="forms.users.add" ref="forms.users.add" :rules="rules.users.add">
+                    <el-row :gutter="20">
+                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                            <el-form-item prop="first_name" label="First Name" :error="errors.users.add.hasOwnProperty('first_name') ? errors.users.add.first_name : ''">
+                                <el-input v-model="forms.users.add.first_name" clearable type="text"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                            <el-form-item prop="last_name" label="Last Name" :error="errors.users.add.hasOwnProperty('last_name') ? errors.users.add.last_name : ''">
+                                <el-input v-model="forms.users.add.last_name" clearable type="text"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-form-item prop="email" label="Email" :error="errors.users.add.hasOwnProperty('email') ? errors.users.add.email : ''">
+                        <el-input v-model="forms.users.add.email" clearable type="email"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="role_select" label="Role" :error="errors.users.add.hasOwnProperty('role_select') ? errors.users.add.role_select : ''">
+                        <el-select v-model="forms.users.add.role_select" value="forms.users.add.role_select" clearable placeholder="Select user role">
+                            <el-option v-for="item in options.roles" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button v-on:click="dialogs.users.add = false">Cancel</el-button>
+                    <el-button :loading="loading.users.add" type="primary" v-on:click="addNewUser('forms.users.add')">Confirm</el-button>
+                </span>
+            </el-dialog>
+
             <el-dialog title="Edit User" :visible.sync="dialogs.users.edit">
                 <el-form :label-position="label.position" :model="forms.users.edit" ref="forms.users.edit" :rules="rules.users.edit">
                     <el-row :gutter="20">
@@ -66,22 +95,22 @@
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogs.users.edit = false">Cancel</el-button>
-                    <el-button :loading="loading.users.edit" type="primary" @click="updateUserDetails('forms.users.edit')">Confirm</el-button>
+                    <el-button v-on:click="dialogs.users.edit = false">Cancel</el-button>
+                    <el-button :loading="loading.users.edit" type="primary" v-on:click="updateUserDetails('forms.users.edit')">Confirm</el-button>
                 </span>
             </el-dialog>
 
             <el-dialog title="Reassign Role" :visible.sync="dialogs.users.role">
                 <el-form :label-position="label.position" :model="forms.users.role" ref="forms.users.role" :rules="rules.users.role">
                     <el-form-item prop="role_select" label="Role" :error="errors.users.role.hasOwnProperty('role_select') ? errors.users.role.role_select : ''">
-                        <el-select v-model="forms.users.role.role_select" value="forms.users.role.role_select" clearable>
+                        <el-select v-model="forms.users.role.role_select" value="forms.users.role.role_select" clearable placeholder="Select user role">
                             <el-option v-for="item in options.roles" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogs.users.role = false">Cancel</el-button>
-                    <el-button :loading="loading.users.role" type="primary" @click="updateUserRole('forms.users.role')">Confirm</el-button>
+                    <el-button v-on:click="dialogs.users.role = false">Cancel</el-button>
+                    <el-button :loading="loading.users.role" type="primary" v-on:click="updateUserRole('forms.users.role')">Confirm</el-button>
                 </span>
             </el-dialog>
         </el-row>
@@ -92,7 +121,7 @@
     import {
         GET_AUTH_OBJECT,
         INIT_FETCH_PAGINATED_USERS,
-        INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE
+        INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE, INIT_STORE_USER
     } from "../../../store/types";
 
     export default {
@@ -244,6 +273,9 @@
             handleCommands: function (command) {
                 this[command.method](command.params);
             },
+            toggleAddUserDialog: function () {
+                this.dialogs.users.add = true;
+            },
             toggleEditUserDialog: function (params) {
                 this.forms.users.edit.user_id = params.id;
                 this.forms.users.edit.first_name = params.name.split(' ')[0];
@@ -261,6 +293,62 @@
             },
             toggleReactivateConfirmation: function () {},
             toggleDeactivateConfirmation: function () {},
+            addNewUser: function (form) {
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+                        this.loading.users.add = true;
+                        return this.$store.dispatch(INIT_STORE_USER, this.forms.users.add).then(response => {
+                            this.loading.users.add = false;
+                            this.dialogs.users.add = false;
+
+                            this.$message({
+                                type: response.status,
+                                showClose: true,
+                                duration: 10000,
+                                message: response.message,
+                            });
+
+                            this.fetchUsers();
+                        }).catch(error => {
+                            this.loading.users.add = false;
+                            let message = error.data.message;
+
+                            if (message instanceof Array === false)
+                            {
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: error.data.message,
+                                });
+                            } else {
+                                let that = this;
+                                message.forEach(function(element) {
+                                    // clear validation for the field
+                                    that.$refs[form].clearValidate(element.field);
+
+                                    // pushes error messages from the response to the validator error bag
+                                    that.errors.users.edit[element.field] = element.error;
+                                });
+
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: 'Something\'s not right. Please check your inputs',
+                                });
+                            }
+                        })
+                    } else {
+                        return this.$message({
+                            type: 'error',
+                            showClose: true,
+                            duration: 10000,
+                            message: 'Something\'s not right. Please check your inputs',
+                        });
+                    }
+                });
+            },
             updateUserDetails: function (form) {
                 this.$refs[form].validate((valid) => {
                     if (valid) {
