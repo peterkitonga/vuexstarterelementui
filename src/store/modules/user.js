@@ -1,7 +1,7 @@
 import {
     GET_ALL_USERS, GET_AUTH_TOKEN,
     SET_ALL_USERS, INIT_FETCH_ALL_USERS,
-    INIT_FETCH_PAGINATED_USERS, INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE
+    INIT_FETCH_PAGINATED_USERS, INIT_STORE_USER, INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE
 } from '../types'
 import HTTP from '../../http'
 
@@ -56,6 +56,19 @@ const actions = {
                 reject(error.response);
             });
         });
+    },
+    [INIT_STORE_USER]: function ({getters, commit}, payload) {
+        return new Promise((resolve, reject) => {
+            HTTP.post('users/store', payload, {
+                headers: {
+                    Authorization: getters[GET_AUTH_TOKEN]
+                }
+            }).then(response => {
+                resolve(response.data);
+            }).catch(error => {
+                reject(error.response);
+            });
+        })
     },
     [INIT_UPDATE_USER]: function ({getters, commit}, payload) {
         return new Promise((resolve, reject) => {
