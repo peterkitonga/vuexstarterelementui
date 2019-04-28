@@ -1,7 +1,7 @@
 import {
-    GET_ALL_USERS, GET_AUTH_TOKEN,
-    SET_ALL_USERS, INIT_FETCH_ALL_USERS,
-    INIT_FETCH_PAGINATED_USERS, INIT_STORE_USER, INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE
+    GET_AUTH_TOKEN, GET_ALL_USERS,
+    SET_ALL_USERS, INIT_FETCH_ALL_USERS, INIT_FETCH_PAGINATED_USERS,
+    INIT_STORE_USER, INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE, INIT_UPDATE_USER_ACTIVE_STATUS, INIT_DELETE_USER
 } from '../types'
 import HTTP from '../../http'
 
@@ -86,6 +86,32 @@ const actions = {
     [INIT_UPDATE_USER_ROLE]: function ({getters, commit}, payload) {
         return new Promise((resolve, reject) => {
             HTTP.put(`users/role/update/${payload.user_id}`, payload, {
+                headers: {
+                    Authorization: getters[GET_AUTH_TOKEN]
+                }
+            }).then(response => {
+                resolve(response.data);
+            }).catch(error => {
+                reject(error.response);
+            });
+        })
+    },
+    [INIT_UPDATE_USER_ACTIVE_STATUS]: function ({getters, commit}, payload) {
+        return new Promise((resolve, reject) => {
+            HTTP.get(`users/${payload.action}/${payload.user_id}`, {
+                headers: {
+                    Authorization: getters[GET_AUTH_TOKEN]
+                }
+            }).then(response => {
+                resolve(response.data);
+            }).catch(error => {
+                reject(error.response);
+            });
+        })
+    },
+    [INIT_DELETE_USER]: function ({getters, commit}, id) {
+        return new Promise((resolve, reject) => {
+            HTTP.delete(`users/delete/${id}`, {
                 headers: {
                     Authorization: getters[GET_AUTH_TOKEN]
                 }
