@@ -7,7 +7,7 @@
                         <span>Users</span>
                         <el-button style="float: right; padding: 3px 0" type="text" v-on:click="toggleAddUserDialog"><i class="el-icon-circle-plus-outline"></i> New</el-button>
                     </div>
-                    <el-table :data="tables.users.data" :default-sort = "{prop: tables.users.sort.default.column, order: tables.users.sort.default.direction}" style="width: 100%">
+                    <el-table v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.default.column, order: tables.users.sort.default.direction}" style="width: 100%">
                         <el-table-column prop="name" label="Name" sortable></el-table-column>
                         <el-table-column prop="email" label="Email" sortable></el-table-column>
                         <el-table-column prop="role" label="Role" sortable></el-table-column>
@@ -145,6 +145,9 @@
                         edit: false,
                         role: false,
                         delete: false
+                    },
+                    tables: {
+                        users: false
                     }
                 },
                 label: {
@@ -256,7 +259,10 @@
         },
         methods: {
             fetchUsers: function () {
+                this.loading.tables.users = true;
+
                 return this.$store.dispatch(INIT_FETCH_PAGINATED_USERS, {page: this.tables.users.pagination.current_page, limit: this.tables.users.pagination.per_page}).then(response => {
+                    this.loading.tables.users = false;
                     this.tables.users.data = response.data;
                     this.tables.users.pagination.to = parseInt(response.meta.to);
                     this.tables.users.pagination.from = parseInt(response.meta.from);
