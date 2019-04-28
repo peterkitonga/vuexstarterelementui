@@ -128,7 +128,11 @@
     import {
         GET_AUTH_OBJECT,
         INIT_FETCH_PAGINATED_USERS,
-        INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE, INIT_STORE_USER, INIT_UPDATE_USER_ACTIVE_STATUS
+        INIT_FETCH_ALL_USER_ROLES,
+        INIT_STORE_USER,
+        INIT_UPDATE_USER,
+        INIT_UPDATE_USER_ROLE,
+        INIT_UPDATE_USER_ACTIVE_STATUS
     } from "../../../store/types";
 
     export default {
@@ -172,17 +176,7 @@
                             value: 0,
                             label: 'Select an option',
                             disabled: true
-                        },
-                        {
-                            value: 1,
-                            label: 'Administrator',
-                            disabled: false
-                        },
-                        {
-                            value: 2,
-                            label: 'Subscriber',
-                            disabled: false
-                        },
+                        }
                     ]
                 },
                 rules: {
@@ -270,6 +264,18 @@
                     this.tables.users.pagination.per_page = parseInt(response.meta.per_page);
                     this.tables.users.pagination.current_page = parseInt(response.meta.current_page);
                 })
+            },
+            fetchUserRoles: function() {
+                return this.$store.dispatch(INIT_FETCH_ALL_USER_ROLES).then(response => {
+                    let that = this;
+                    response.data.forEach(function (element) {
+                        that.options.roles.push({
+                            value: element.id,
+                            label: element.name,
+                            disabled: false
+                        });
+                    });
+                });
             },
             handleUsersCurrentPageChange: function(val) {
                 this.tables.users.pagination.current_page = val;
@@ -525,6 +531,7 @@
         },
         mounted: function () {
             this.fetchUsers();
+            this.fetchUserRoles();
         }
     }
 </script>
