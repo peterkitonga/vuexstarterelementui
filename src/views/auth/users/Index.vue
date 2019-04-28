@@ -11,6 +11,13 @@
                         <el-table-column prop="name" label="Name" sortable></el-table-column>
                         <el-table-column prop="email" label="Email" sortable></el-table-column>
                         <el-table-column prop="role" label="Role" sortable></el-table-column>
+                        <el-table-column prop="is_active" label="Active">
+                            <template slot-scope="scope">
+                                <el-tag :type="scope.row.is_active === false ? 'primary' : 'success'" disable-transitions>
+                                    {{scope.row.is_active}}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="is_logged_in" label="Online">
                             <template slot-scope="scope">
                                 <el-tag :type="scope.row.is_logged_in === false ? 'primary' : 'success'" disable-transitions>
@@ -28,8 +35,8 @@
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item :command="{method: 'toggleEditUserDialog', params: scope.row}">Edit</el-dropdown-item>
                                         <el-dropdown-item v-if="scope.row.id !== authUser.id" :command="{method: 'toggleEditUserRoleDialog', params: scope.row}">Reassign Role</el-dropdown-item>
-                                        <el-dropdown-item v-if="scope.row.is_deactivated === true" :command="{method: 'toggleReactivateConfirmation', params: {id: scope.row.id}}">Reactivate</el-dropdown-item>
-                                        <el-dropdown-item v-if="scope.row.is_deactivated === false" :command="{method: 'toggleDeactivateConfirmation', params: {id: scope.row.id}}">Deactivate</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.row.is_deactivated === true" :command="{method: 'toggleReactivateConfirmation', params: scope.row}">Reactivate</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.row.is_deactivated === false" :command="{method: 'toggleDeactivateConfirmation', params: scope.row}">Deactivate</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </template>
@@ -121,7 +128,7 @@
     import {
         GET_AUTH_OBJECT,
         INIT_FETCH_PAGINATED_USERS,
-        INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE, INIT_STORE_USER
+        INIT_UPDATE_USER, INIT_UPDATE_USER_ROLE, INIT_STORE_USER, INIT_UPDATE_USER_ACTIVE_STATUS
     } from "../../../store/types";
 
     export default {
@@ -242,6 +249,8 @@
                         add: false,
                         edit: false,
                         role: false,
+                        deactivate: false,
+                        reactivate: false
                     }
                 }
             }
@@ -291,8 +300,56 @@
                 this.forms.users.role.role_select = currentRole.value;
                 this.dialogs.users.role = true;
             },
-            toggleReactivateConfirmation: function () {},
-            toggleDeactivateConfirmation: function () {},
+            toggleReactivateConfirmation: function (params) {
+                return this.$confirm(`Are you sure you want to reactivate ${params.name}?`, 'Confirm', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'info'
+                }).then(() => {
+                    this.$store.dispatch(INIT_UPDATE_USER_ACTIVE_STATUS, {action: 'reactivate', user_id: params.id}).then(response => {
+                        this.$message({
+                            type: response.status,
+                            showClose: true,
+                            duration: 10000,
+                            message: response.message,
+                        });
+
+                        this.fetchUsers();
+                    }).catch(error => {
+                        this.$message({
+                            type: 'error',
+                            showClose: true,
+                            duration: 10000,
+                            message: error.data.message,
+                        });
+                    });
+                });
+            },
+            toggleDeactivateConfirmation: function (params) {
+                return this.$confirm(`Are you sure you want to deactivate ${params.name}?`, 'Warning', {
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() => {
+                    this.$store.dispatch(INIT_UPDATE_USER_ACTIVE_STATUS, {action: 'deactivate', user_id: params.id}).then(response => {
+                        this.$message({
+                            type: response.status,
+                            showClose: true,
+                            duration: 10000,
+                            message: response.message,
+                        });
+
+                        this.fetchUsers();
+                    }).catch(error => {
+                        this.$message({
+                            type: 'error',
+                            showClose: true,
+                            duration: 10000,
+                            message: error.data.message,
+                        });
+                    });
+                });
+            },
             addNewUser: function (form) {
                 this.$refs[form].validate((valid) => {
                     if (valid) {
