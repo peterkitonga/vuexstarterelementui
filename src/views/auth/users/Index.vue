@@ -19,7 +19,7 @@
                             </el-form-item>
                         </el-form>
                     </div>
-                    <el-table border v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.column, order: tables.users.sort.direction.long}" style="width: 100%">
+                    <el-table v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.column, order: tables.users.sort.direction.long}" style="width: 100%">
                         <el-table-column prop="name" label="Name" width="180" sortable></el-table-column>
                         <el-table-column prop="email" label="Email" width="auto" sortable></el-table-column>
                         <el-table-column prop="role" label="Role" width="110" sortable></el-table-column>
