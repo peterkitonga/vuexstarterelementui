@@ -14,8 +14,8 @@
                                 </el-input>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" native-type="submit" icon="el-icon-search" circle></el-button>
-                                <el-button type="success" v-on:click="toggleAddUserDialog"><i class="el-icon-circle-plus-outline"></i> New</el-button>
+                                <el-button type="primary" native-type="submit" icon="el-icon-search" circle plain></el-button>
+                                <el-button type="success" v-on:click="toggleAddUserDialog" plain><i class="el-icon-circle-plus-outline"></i> New</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -91,7 +91,7 @@
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button v-on:click="dialogs.users.add = false">Cancel</el-button>
-                    <el-button :loading="loading.users.add" type="primary" v-on:click="addNewUser('forms.users.add')">Confirm</el-button>
+                    <el-button :loading="loading.users.add" type="primary" v-on:click="addNewUser('forms.users.add')" plain>Confirm</el-button>
                 </span>
             </el-dialog>
 
@@ -115,7 +115,7 @@
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button v-on:click="dialogs.users.edit = false">Cancel</el-button>
-                    <el-button :loading="loading.users.edit" type="primary" v-on:click="updateUserDetails('forms.users.edit')">Confirm</el-button>
+                    <el-button :loading="loading.users.edit" type="primary" v-on:click="updateUserDetails('forms.users.edit')" plain>Confirm</el-button>
                 </span>
             </el-dialog>
 
@@ -129,7 +129,7 @@
                 </el-form>
                 <span slot="footer" class="dialog-footer">
                     <el-button v-on:click="dialogs.users.role = false">Cancel</el-button>
-                    <el-button :loading="loading.users.role" type="primary" v-on:click="updateUserRole('forms.users.role')">Confirm</el-button>
+                    <el-button :loading="loading.users.role" type="primary" v-on:click="updateUserRole('forms.users.role')" plain>Confirm</el-button>
                 </span>
             </el-dialog>
         </el-row>
