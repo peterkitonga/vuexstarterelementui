@@ -2,15 +2,15 @@
     <el-menu class="el-menu-vertical-custom" :router="true" :default-active="this.$route.name" :collapse="this.$store.state['sidebar_collapse']" :collapse-transition="false">
         <el-menu-item index="subscriber.home" route="/home" v-if="hasAccess('subscriber')">
             <i class="el-icon-menu"></i>
-            <span>Home</span>
+            <span slot="title">Home</span>
         </el-menu-item>
         <el-menu-item index="administrator.home" route="/admin/home" v-if="hasAccess('administrator')">
             <i class="el-icon-menu"></i>
-            <span>Home</span>
+            <span slot="title">Home</span>
         </el-menu-item>
         <el-menu-item index="users.index" route="/users" v-if="hasAccess('administrator')">
             <i class="el-icon-news"></i>
-            <span>Users</span>
+            <span slot="title">Users</span>
         </el-menu-item>
     </el-menu>
 </template>
