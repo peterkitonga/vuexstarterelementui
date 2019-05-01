@@ -1,10 +1,10 @@
 <template>
-    <el-container class="custom-container">
-        <el-aside width="200px">
+    <el-container>
+        <el-aside :width="this.$store.state['sidebar_collapse'] === true ? '64px' : '200px'">
             <router-view name="sidebar"></router-view>
         </el-aside>
         <el-container>
-            <el-header class="no-padding">
+            <el-header style="padding: 1px">
                 <router-view name="header"></router-view>
             </el-header>
             <router-view/>
@@ -19,11 +19,5 @@
 </script>
 
 <style scoped>
-    .custom-container {
-        height: 100%;
-        width: 100%;
-    }
-    .no-padding{
-        padding: 0
-    }
+
 </style>

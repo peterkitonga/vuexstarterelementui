@@ -1,17 +1,17 @@
 <template>
     <el-menu class="el-menu-custom" mode="horizontal" default-active="collapse" :router="true">
         <el-menu-item index="collapse" route="#">
-            <el-button type="text" size="mini" plain v-on:click="toggleSidebar">
-                <i class="el-icon-menu"></i>
+            <el-button v-on:click="toggleSidebar" type="text" size="mini">
+                <i :class="this.$store.state['sidebar_collapse'] === true ? 'el-icon-s-unfold' : 'el-icon-s-fold'"></i>
             </el-button>
         </el-menu-item>
         <el-menu-item index="logo" :route="homeRoute.path">VuexStarter</el-menu-item>
         <el-menu-item index="logout" route="#" style="float: right">
             <el-dropdown @command="handleCommands" trigger="click">
-                    <span>
-                        <img src="/images/user-avatar.png" alt="User Image" class="img-circle" style="height: 35px;width: 35px;border-radius: 50%">
-                        <i class="el-icon-arrow-down el-icon--right"></i>
-                    </span>
+                <span>
+                    <img src="/images/user-avatar.png" alt="User Image" class="img-circle" style="height: 35px;width: 35px;border-radius: 50%">
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item :command="{method: 'logout', params: {}}">Logout</el-dropdown-item>
                 </el-dropdown-menu>
