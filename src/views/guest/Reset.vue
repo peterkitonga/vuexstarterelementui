@@ -8,10 +8,10 @@
                     </div>
                     <el-form v-on:submit.prevent.native="submit('forms.reset')" :label-position="label.position" :model="forms.reset" ref="forms.reset" :rules="rules">
                         <el-form-item prop="password" label="New Password" :error="errors.reset.hasOwnProperty('password') ? errors.reset.password : ''">
-                            <el-input v-model="forms.reset.password" clearable type="password"></el-input>
+                            <el-input v-model="forms.reset.password" clearable type="password" show-password></el-input>
                         </el-form-item>
                         <el-form-item prop="password_confirmation" label="Confirm Password" :error="errors.reset.hasOwnProperty('password_confirmation') ? errors.reset.password_confirmation : ''">
-                            <el-input v-model="forms.reset.password_confirmation" clearable type="password"></el-input>
+                            <el-input v-model="forms.reset.password_confirmation" clearable type="password" show-password></el-input>
                         </el-form-item>
                         <el-button :loading="loading.reset" native-type="submit" plain type="primary">Reset</el-button>
                     </el-form>

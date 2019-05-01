@@ -11,7 +11,7 @@
                             <el-input v-model="forms.login.email" clearable type="email"></el-input>
                         </el-form-item>
                         <el-form-item prop="password" label="Password" :error="errors.login.hasOwnProperty('password') ? errors.login.password : ''">
-                            <el-input v-model="forms.login.password" clearable type="password"></el-input>
+                            <el-input v-model="forms.login.password" clearable type="password" show-password></el-input>
                         </el-form-item>
                         <el-button :loading="loading.login" native-type="submit" plain type="primary">Log In</el-button>
                         <el-button type="text" v-on:click="$router.push({name: 'forgot'})">Forgot Password? <i class="el-icon-arrow-right el-icon-right"></i></el-button>

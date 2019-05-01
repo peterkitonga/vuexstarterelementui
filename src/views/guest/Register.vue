@@ -23,10 +23,10 @@
                             <el-input v-model="forms.register.email" clearable type="email"></el-input>
                         </el-form-item>
                         <el-form-item prop="password" label="Password" :error="errors.register.hasOwnProperty('password') ? errors.register.password : ''">
-                            <el-input v-model="forms.register.password" clearable type="password"></el-input>
+                            <el-input v-model="forms.register.password" clearable type="password" show-password></el-input>
                         </el-form-item>
                         <el-form-item prop="password_confirmation" label="Confirm Password" :error="errors.register.hasOwnProperty('password_confirmation') ? errors.register.password_confirmation : ''">
-                            <el-input v-model="forms.register.password_confirmation" clearable type="password"></el-input>
+                            <el-input v-model="forms.register.password_confirmation" clearable type="password" show-password></el-input>
                         </el-form-item>
                         <el-button :loading="loading.register" native-type="submit" plain type="primary">Register</el-button>
                     </el-form>
