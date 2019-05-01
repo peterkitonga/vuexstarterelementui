@@ -5,28 +5,40 @@
                 <el-card>
                     <div slot="header" class="clearfix">
                         <span>Users</span>
-                        <el-button style="float: right; padding: 3px 0" type="text" v-on:click="toggleAddUserDialog"><i class="el-icon-circle-plus-outline"></i> New</el-button>
+                        <el-form v-on:submit.prevent.native="filterUsersTable('forms.users.search')" :inline="true" :model="forms.users.search" ref="forms.users.search" :rules="rules.users.search" size="mini" style="float: right;">
+                            <el-form-item prop="value">
+                                <el-input v-model="forms.users.search.value" clearable :placeholder="'Search by ' + searchValueLabel" class="input-with-select">
+                                    <el-select v-model="forms.users.search.column" value="forms.users.search.column" placeholder="Select" slot="append">
+                                        <el-option v-for="item in options.search" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>
+                                    </el-select>
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" native-type="submit" icon="el-icon-search" circle></el-button>
+                                <el-button type="success" v-on:click="toggleAddUserDialog"><i class="el-icon-circle-plus-outline"></i> New</el-button>
+                            </el-form-item>
+                        </el-form>
                     </div>
-                    <el-table v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.default.column, order: tables.users.sort.default.direction}" style="width: 100%">
-                        <el-table-column prop="name" label="Name" sortable></el-table-column>
-                        <el-table-column prop="email" label="Email" sortable></el-table-column>
-                        <el-table-column prop="role" label="Role" sortable></el-table-column>
-                        <el-table-column prop="is_active" label="Active">
+                    <el-table border v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.column, order: tables.users.sort.direction.long}" style="width: 100%">
+                        <el-table-column prop="name" label="Name" width="180" sortable></el-table-column>
+                        <el-table-column prop="email" label="Email" width="auto" sortable></el-table-column>
+                        <el-table-column prop="role" label="Role" width="110" sortable></el-table-column>
+                        <el-table-column prop="is_active" label="Active" width="70">
                             <template slot-scope="scope">
                                 <el-tag :type="scope.row.is_active === false ? 'primary' : 'success'" disable-transitions>
                                     {{scope.row.is_active}}
                                 </el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="is_logged_in" label="Online">
+                        <el-table-column prop="is_logged_in" label="Online" width="70">
                             <template slot-scope="scope">
                                 <el-tag :type="scope.row.is_logged_in === false ? 'primary' : 'success'" disable-transitions>
                                     {{scope.row.is_logged_in}}
                                 </el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="date_added" label="Date Added" sortable></el-table-column>
-                        <el-table-column label="Actions">
+                        <el-table-column prop="date_added" label="Date Added" width="150" sortable></el-table-column>
+                        <el-table-column label="Actions" width="70">
                             <template slot-scope="scope">
                                 <el-dropdown trigger="click" size="small" @command="handleCommands">
                                     <el-button size="mini" circle>
@@ -170,7 +182,11 @@
                         role: {
                             user_id: 0,
                             role_select: 0,
-                        }
+                        },
+                        search: {
+                            column: 'name',
+                            value: ''
+                        },
                     }
                 },
                 options: {
@@ -179,6 +195,28 @@
                             value: 0,
                             label: 'Select an option',
                             disabled: true
+                        }
+                    ],
+                    search: [
+                        {
+                            value: 'name',
+                            label: 'Name',
+                            disabled: false
+                        },
+                        {
+                            value: 'email',
+                            label: 'Email',
+                            disabled: false
+                        },
+                        {
+                            value: 'role',
+                            label: 'Role',
+                            disabled: false
+                        },
+                        {
+                            value: 'date_added',
+                            label: 'Date Added',
+                            disabled: false
                         }
                     ]
                 },
@@ -212,6 +250,11 @@
                             role_select: [
                                 {required: true, message: 'The role field is required', trigger: 'blur'},
                             ]
+                        },
+                        search: {
+                            value: [
+                                {required: true, message: 'The search value field is required', trigger: 'blur'}
+                            ]
                         }
                     }
                 },
@@ -219,12 +262,12 @@
                     users: {
                         data: [],
                         sort: {
-                            default: {
-                                column: 'date_added',
-                                direction: 'descending'
+                            column: 'date_added',
+                            direction: {
+                                long: 'descending',
+                                short: 'desc'
                             }
                         },
-                        search: '',
                         pagination: {
                             current_page: 1,
                             per_page: 10,
@@ -255,6 +298,14 @@
         computed: {
             authUser: function () {
                 return this.$store.getters[GET_AUTH_OBJECT];
+            },
+            searchValueLabel: function () {
+                let value = this.forms.users.search.column;
+                let option = this.options.search.find(function (element) {
+                    return element.value === value;
+                });
+
+                return option['label'];
             }
         },
         methods: {
@@ -524,6 +575,20 @@
                                 });
                             }
                         })
+                    } else {
+                        return this.$message({
+                            type: 'error',
+                            showClose: true,
+                            duration: 10000,
+                            message: 'Something\'s not right. Please check your inputs',
+                        });
+                    }
+                });
+            },
+            filterUsersTable: function (form) {
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+
                     } else {
                         return this.$message({
                             type: 'error',
