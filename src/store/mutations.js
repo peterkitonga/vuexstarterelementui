@@ -1,4 +1,5 @@
 import {
+    SET_SIDEBAR_COLLAPSE_STATUS,
     SET_AUTH_LOGIN_STATUS,
     SET_AUTH_OBJECT,
     SET_AUTH_TOKEN,
@@ -6,6 +7,9 @@ import {
 } from './types'
 
 export default {
+    [SET_SIDEBAR_COLLAPSE_STATUS]: (state, status) => {
+        state.sidebar_collapse = status
+    },
     [SET_AUTH_LOGIN_STATUS]: (state, payload) => {
         state.is_logged_in = payload.data.is_logged_in
     },

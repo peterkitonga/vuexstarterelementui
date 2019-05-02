@@ -9,6 +9,9 @@ export const GET_AUTH_LOGIN_STATUS = 'GET_AUTH_LOGIN_STATUS';
 export const GET_ALL_USERS = 'user/GET_ALL_USERS';
 
 /*================================= Mutations ===============================================================================*/
+// miscellaneous
+export const SET_SIDEBAR_COLLAPSE_STATUS = 'SET_SIDEBAR_COLLAPSE_STATUS';
+
 // auth
 export const SET_AUTH_OBJECT = 'SET_AUTH_OBJECT';
 export const SET_AUTH_LOGIN_STATUS = 'SET_AUTH_LOGIN_STATUS';
