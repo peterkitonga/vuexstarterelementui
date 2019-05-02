@@ -21,7 +21,7 @@
 </template>
 
 <script>
-    import {INIT_LOGOUT_AUTH_USER} from "../../store/types";
+    import {INIT_LOGOUT_AUTH_USER, SET_SIDEBAR_COLLAPSE_STATUS} from "../../store/types";
 
     export default {
         name: "auth-header",
@@ -40,7 +40,9 @@
         },
         methods: {
             toggleSidebar: function () {
-                this.$store.state['sidebar_collapse'] = this.$store.state['sidebar_collapse'] !== true;
+                let status = this.$store.state['sidebar_collapse'] !== true;
+
+                return this.$store.commit(SET_SIDEBAR_COLLAPSE_STATUS, status);
             },
             handleCommands: function (command) {
                 this[command.method](command.params);
