@@ -5,16 +5,16 @@
                 <el-card>
                     <div slot="header" class="clearfix">
                         <span>Users</span>
-                        <el-form v-on:submit.prevent.native="filterUsersTable('forms.users.search')" :inline="true" :model="forms.users.search" ref="forms.users.search" :rules="rules.users.search" size="mini" style="float: right;">
+                        <el-form v-on:submit.prevent.native="filterUsersTableData('forms.users.search')" :inline="true" :model="forms.users.search" ref="forms.users.search" :rules="rules.users.search" size="mini" style="float: right;">
                             <el-form-item prop="value">
-                                <el-input v-model="forms.users.search.value" clearable :placeholder="'Search by ' + searchValueLabel" class="input-with-select">
+                                <el-input v-model="forms.users.search.value" clearable :placeholder="'Search by ' + searchValueLabel" class="input-with-select" @clear="resetUsersTableData">
                                     <el-select v-model="forms.users.search.column" value="forms.users.search.column" placeholder="Select" slot="append">
                                         <el-option v-for="item in options.search" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>
                                     </el-select>
                                 </el-input>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" native-type="submit" icon="el-icon-search" circle plain></el-button>
+                                <el-button :loading="loading.users.search" type="primary" native-type="submit" icon="el-icon-search" circle plain></el-button>
                                 <el-button type="success" v-on:click="toggleAddUserDialog" plain><i class="el-icon-circle-plus-outline"></i> New</el-button>
                             </el-form-item>
                         </el-form>
@@ -54,7 +54,7 @@
                             </template>
                         </el-table-column>
                     </el-table>
-                    <el-pagination layout="sizes, prev, pager, next" style="float: right;"
+                    <el-pagination layout="total, sizes, prev, pager, next" style="float: right;"
                             :total="tables.users.pagination.total"
                             :current-page="tables.users.pagination.current_page"
                             :page-size="tables.users.pagination.per_page"
@@ -139,6 +139,8 @@
 <script>
     import {
         GET_AUTH_OBJECT,
+        GET_ALL_USERS,
+        INIT_FETCH_ALL_USERS,
         INIT_FETCH_PAGINATED_USERS,
         INIT_FETCH_ALL_USER_ROLES,
         INIT_STORE_USER,
@@ -156,6 +158,7 @@
                         add: false,
                         edit: false,
                         role: false,
+                        search: false,
                         delete: false
                     },
                     tables: {
@@ -320,7 +323,12 @@
                     this.tables.users.pagination.total = parseInt(response.meta.total);
                     this.tables.users.pagination.per_page = parseInt(response.meta.per_page);
                     this.tables.users.pagination.current_page = parseInt(response.meta.current_page);
-                })
+
+                    this.loading.users.search = true;
+                    this.$store.dispatch(INIT_FETCH_ALL_USERS, {page: 1, limit: parseInt(response.meta.total)}).then(() => {
+                        this.loading.users.search = false;
+                    });
+                });
             },
             fetchUserRoles: function() {
                 return this.$store.dispatch(INIT_FETCH_ALL_USER_ROLES).then(response => {
@@ -585,10 +593,26 @@
                     }
                 });
             },
-            filterUsersTable: function (form) {
+            filterUsersTableData: function (form) {
                 this.$refs[form].validate((valid) => {
                     if (valid) {
+                        this.loading.users.search = true;
+                        this.loading.tables.users = true;
+                        let searchValue = this.forms.users.search.value;
+                        let searchColumn = this.forms.users.search.column;
+                        let filterable = this.$store.getters[GET_ALL_USERS];
 
+                        let result = filterable.filter(function (element) {
+                            return element[searchColumn].toLowerCase().includes(searchValue.toLowerCase());
+                        });
+
+                        this.tables.users.data = result;
+                        this.loading.users.search = false;
+                        this.loading.tables.users = false;
+                        this.tables.users.pagination.from = 1;
+                        this.tables.users.pagination.to = parseInt(result.length);
+                        this.tables.users.pagination.total = parseInt(result.length);
+                        this.tables.users.pagination.per_page = parseInt(result.length);
                     } else {
                         return this.$message({
                             type: 'error',
@@ -598,6 +622,15 @@
                         });
                     }
                 });
+            },
+            resetUsersTableData: function () {
+                this.tables.users.pagination.to = 0;
+                this.tables.users.pagination.from = 0;
+                this.tables.users.pagination.total = 0;
+                this.tables.users.pagination.per_page = 10;
+                this.tables.users.pagination.current_page = 1;
+
+                this.fetchUsers();
             }
         },
         mounted: function () {
