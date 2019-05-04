@@ -46,9 +46,9 @@
                                     </el-button>
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item :command="{method: 'toggleEditUserDialog', params: scope.row}">Edit</el-dropdown-item>
-                                        <el-dropdown-item v-if="scope.row.id !== authUser.id" :command="{method: 'toggleEditUserRoleDialog', params: scope.row}">Reassign Role</el-dropdown-item>
-                                        <el-dropdown-item v-if="scope.row.is_deactivated === true" :command="{method: 'toggleReactivateConfirmation', params: scope.row}">Reactivate</el-dropdown-item>
-                                        <el-dropdown-item v-if="scope.row.is_deactivated === false" :command="{method: 'toggleDeactivateConfirmation', params: scope.row}">Deactivate</el-dropdown-item>
+                                        <el-dropdown-item :disabled="scope.row.id === authUser.id || scope.row.is_logged_in === true" :command="{method: 'toggleEditUserRoleDialog', params: scope.row}">Reassign Role</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.row.is_deactivated === true" :disabled="scope.row.id === authUser.id || scope.row.is_logged_in === true" :command="{method: 'toggleReactivateConfirmation', params: scope.row}">Reactivate</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.row.is_deactivated === false" :disabled="scope.row.id === authUser.id || scope.row.is_logged_in === true" :command="{method: 'toggleDeactivateConfirmation', params: scope.row}">Deactivate</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </el-dropdown>
                             </template>
