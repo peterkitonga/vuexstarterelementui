@@ -5,9 +5,9 @@
                 <el-card>
                     <div slot="header" class="clearfix">
                         <span>Users</span>
-                        <el-form v-on:submit.prevent.native="filterUsersTableData('forms.users.search')" :inline="true" :model="forms.users.search" ref="forms.users.search" :rules="rules.users.search" size="mini" style="float: right;">
+                        <el-form v-on:submit.prevent.native="handleFilterUsersTableData('forms.users.search')" :inline="true" :model="forms.users.search" ref="forms.users.search" :rules="rules.users.search" size="mini" style="float: right;">
                             <el-form-item prop="value">
-                                <el-input v-model="forms.users.search.value" clearable :placeholder="'Search by ' + searchValueLabel" class="input-with-select" @clear="resetUsersTableData">
+                                <el-input v-model="forms.users.search.value" clearable :placeholder="'Search by ' + searchValueLabel" class="input-with-select" @clear="handleResetUsersTableData">
                                     <el-select v-model="forms.users.search.column" value="forms.users.search.column" placeholder="Select" slot="append">
                                         <el-option v-for="item in options.search" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled"></el-option>
                                     </el-select>
@@ -19,7 +19,7 @@
                             </el-form-item>
                         </el-form>
                     </div>
-                    <el-table v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.column, order: tables.users.sort.direction.long}" style="width: 100%">
+                    <el-table v-loading="loading.tables.users" :data="tables.users.data" :default-sort="{prop: tables.users.sort.column, order: tables.users.sort.direction}" style="width: 100%">
                         <el-table-column prop="name" label="Name" width="180" sortable></el-table-column>
                         <el-table-column prop="email" label="Email" width="auto" sortable></el-table-column>
                         <el-table-column prop="role" label="Role" width="110" sortable></el-table-column>
@@ -212,11 +212,6 @@
                             disabled: false
                         },
                         {
-                            value: 'role',
-                            label: 'Role',
-                            disabled: false
-                        },
-                        {
                             value: 'date_added',
                             label: 'Date Added',
                             disabled: false
@@ -266,10 +261,7 @@
                         data: [],
                         sort: {
                             column: 'date_added',
-                            direction: {
-                                long: 'descending',
-                                short: 'desc'
-                            }
+                            direction: 'descending'
                         },
                         pagination: {
                             current_page: 1,
@@ -309,13 +301,33 @@
                 });
 
                 return option['label'];
+            },
+            sortDirectionShort: function () {
+                return this.tables.users.sort.direction === 'descending' ? 'desc' : 'asc';
             }
         },
         methods: {
             fetchUsers: function () {
                 this.loading.tables.users = true;
+                this.loading.users.search = true;
 
-                return this.$store.dispatch(INIT_FETCH_PAGINATED_USERS, {page: this.tables.users.pagination.current_page, limit: this.tables.users.pagination.per_page}).then(response => {
+                return this.$store.dispatch(INIT_FETCH_PAGINATED_USERS, {page: this.tables.users.pagination.current_page, limit: this.tables.users.pagination.per_page, sort: btoa(JSON.stringify({column: this.tables.users.sort.column, direction: this.sortDirectionShort}))}).then(response => {
+                    this.loading.tables.users = false;
+                    this.loading.users.search = false;
+                    this.tables.users.data = response.data;
+                    this.tables.users.pagination.to = parseInt(response.meta.to);
+                    this.tables.users.pagination.from = parseInt(response.meta.from);
+                    this.tables.users.pagination.total = parseInt(response.meta.total);
+                    this.tables.users.pagination.per_page = parseInt(response.meta.per_page);
+                    this.tables.users.pagination.current_page = parseInt(response.meta.current_page);
+                });
+            },
+            filterUsers: function () {
+                this.loading.users.search = true;
+                this.loading.tables.users = true;
+
+                return this.$store.dispatch(INIT_FETCH_PAGINATED_USERS, {page: this.tables.users.pagination.current_page, limit: this.tables.users.pagination.per_page, search: btoa(JSON.stringify(this.forms.users.search)), sort: btoa(JSON.stringify({column: this.tables.users.sort.column, direction: this.sortDirectionShort}))}).then(response => {
+                    this.loading.users.search = false;
                     this.loading.tables.users = false;
                     this.tables.users.data = response.data;
                     this.tables.users.pagination.to = parseInt(response.meta.to);
@@ -323,11 +335,6 @@
                     this.tables.users.pagination.total = parseInt(response.meta.total);
                     this.tables.users.pagination.per_page = parseInt(response.meta.per_page);
                     this.tables.users.pagination.current_page = parseInt(response.meta.current_page);
-
-                    this.loading.users.search = true;
-                    this.$store.dispatch(INIT_FETCH_ALL_USERS, {page: 1, limit: parseInt(response.meta.total)}).then(() => {
-                        this.loading.users.search = false;
-                    });
                 });
             },
             fetchUserRoles: function() {
@@ -344,14 +351,49 @@
             },
             handleUsersCurrentPageChange: function(val) {
                 this.tables.users.pagination.current_page = val;
-                this.fetchUsers();
+
+                if (this.forms.users.search.value === '') {
+                    this.fetchUsers();
+                } else {
+                    this.filterUsers();
+                }
             },
             handleUsersPageSizeChange: function (val) {
                 this.tables.users.pagination.per_page = val;
-                this.fetchUsers();
+
+                if (this.forms.users.search.value === '') {
+                    this.fetchUsers();
+                } else {
+                    this.filterUsers();
+                }
             },
             handleCommands: function (command) {
                 this[command.method](command.params);
+            },
+            handleFilterUsersTableData: function (form) {
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+                        this.tables.users.pagination.current_page = 1;
+
+                        this.filterUsers();
+                    } else {
+                        return this.$message({
+                            type: 'error',
+                            showClose: true,
+                            duration: 10000,
+                            message: 'Something\'s not right. Please check your inputs',
+                        });
+                    }
+                });
+            },
+            handleResetUsersTableData: function () {
+                this.tables.users.pagination.to = 0;
+                this.tables.users.pagination.from = 0;
+                this.tables.users.pagination.total = 0;
+                this.tables.users.pagination.per_page = 10;
+                this.tables.users.pagination.current_page = 1;
+
+                this.fetchUsers();
             },
             toggleAddUserDialog: function () {
                 this.dialogs.users.add = true;
@@ -592,45 +634,6 @@
                         });
                     }
                 });
-            },
-            filterUsersTableData: function (form) {
-                this.$refs[form].validate((valid) => {
-                    if (valid) {
-                        this.loading.users.search = true;
-                        this.loading.tables.users = true;
-                        let searchValue = this.forms.users.search.value;
-                        let searchColumn = this.forms.users.search.column;
-                        let filterable = this.$store.getters[GET_ALL_USERS];
-
-                        let result = filterable.filter(function (element) {
-                            return element[searchColumn].toLowerCase().includes(searchValue.toLowerCase());
-                        });
-
-                        this.tables.users.data = result;
-                        this.loading.users.search = false;
-                        this.loading.tables.users = false;
-                        this.tables.users.pagination.from = 1;
-                        this.tables.users.pagination.to = parseInt(result.length);
-                        this.tables.users.pagination.total = parseInt(result.length);
-                        this.tables.users.pagination.per_page = parseInt(result.length);
-                    } else {
-                        return this.$message({
-                            type: 'error',
-                            showClose: true,
-                            duration: 10000,
-                            message: 'Something\'s not right. Please check your inputs',
-                        });
-                    }
-                });
-            },
-            resetUsersTableData: function () {
-                this.tables.users.pagination.to = 0;
-                this.tables.users.pagination.from = 0;
-                this.tables.users.pagination.total = 0;
-                this.tables.users.pagination.per_page = 10;
-                this.tables.users.pagination.current_page = 1;
-
-                this.fetchUsers();
             }
         },
         mounted: function () {
