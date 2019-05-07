@@ -30,16 +30,13 @@ const mutations = {
 };
 
 const actions = {
-    [INIT_FETCH_ALL_USERS]: ({getters, commit}, payload) => {
+    [INIT_FETCH_ALL_USERS]: ({getters, commit}, params) => {
         return new Promise((resolve, reject) => {
             HTTP.get('users', {
                 headers: {
                     Authorization: getters[GET_AUTH_TOKEN]
                 },
-                params: {
-                    page: payload.page,
-                    limit: payload.limit
-                }
+                params: params
             }).then(response => {
                 commit(SET_ALL_USERS, response.data);
                 resolve(response.data);
@@ -48,16 +45,13 @@ const actions = {
             });
         });
     },
-    [INIT_FETCH_PAGINATED_USERS]: ({getters, commit}, payload) => {
+    [INIT_FETCH_PAGINATED_USERS]: ({getters, commit}, params) => {
         return new Promise((resolve, reject) => {
             HTTP.get('users', {
                 headers: {
                     Authorization: getters[GET_AUTH_TOKEN]
                 },
-                params: {
-                    page: payload.page,
-                    limit: payload.limit
-                }
+                params: params
             }).then(response => {
                 resolve(response.data);
             }).catch(error => {
