@@ -19,6 +19,7 @@ import Reset from './views/guest/Reset'
 import SubscriberHome from './views/auth/dashboards/Subscriber'
 import AdministratorHome from './views/auth/dashboards/Administrator'
 import UsersIndex from './views/auth/users/Index'
+import UsersProfile from './views/auth/users/Profile'
 
 import {store} from './store'
 
@@ -121,6 +122,16 @@ export const router =  new Router({
                       sidebar: AuthSidebar,
                       header: AuthHeader,
                       default: UsersIndex
+                  },
+                  meta: {auth: true, roles: ['administrator']}
+              },
+              {
+                  path: '/profile',
+                  name: 'users.profile',
+                  components: {
+                      sidebar: AuthSidebar,
+                      header: AuthHeader,
+                      default: UsersProfile
                   },
                   meta: {auth: true, roles: ['administrator']}
               }
