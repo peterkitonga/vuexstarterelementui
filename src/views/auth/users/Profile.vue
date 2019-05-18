@@ -7,10 +7,12 @@
                         <div class="image-overlay">
                             <img :src="details.image === null ? base_url + 'images/user-avatar.png' : details.image" class="image">
                             <el-form>
-                                <el-button type="primary" class="image-overlay-content" circle>
-                                    <el-input type="file" id="profile-image-file" class="input-file" v-model="files.profile"></el-input>
-                                    <label for="profile-image-file"><i class="el-icon-edit"></i></label>
-                                </el-button>
+                                <el-tooltip content="Click to update image" placement="right" effect="light">
+                                    <el-button type="primary" class="image-overlay-content" circle>
+                                        <el-input type="file" id="profile-image-file" class="input-file" v-model="files.profile"></el-input>
+                                        <label for="profile-image-file"><i class="el-icon-edit"></i></label>
+                                    </el-button>
+                                </el-tooltip>
                             </el-form>
                         </div>
                         <div class="content">
