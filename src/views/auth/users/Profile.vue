@@ -61,7 +61,7 @@
                                 <span>Change Password</span>
                             </div>
                             <el-form v-on:submit.prevent.native="changePassword('forms.password')" :label-position="label.position" :model="forms.password" ref="forms.password" :rules="rules.password">
-                                <el-form-item prop="password" label="Current Password" :error="errors.password.hasOwnProperty('current_password') ? errors.password.current_password : ''">
+                                <el-form-item prop="current_password" label="Current Password" :error="errors.password.hasOwnProperty('current_password') ? errors.password.current_password : ''">
                                     <el-input v-model="forms.password.current_password" clearable type="password" show-password></el-input>
                                 </el-form-item>
                                 <el-form-item prop="password" label="New Password" :error="errors.password.hasOwnProperty('password') ? errors.password.password : ''">
@@ -171,7 +171,9 @@
             updateProfile: function (form) {
                 this.$refs[form].validate((valid) => {
                     if (valid) {
+                        this.loading.profile = true;
                         return this.$store.dispatch(INIT_UPDATE_AUTH_USER_PROFILE, this.forms.profile).then(response => {
+                            this.loading.profile = false;
                             this.$message({
                                 type: response.status,
                                 showClose: true,
@@ -180,6 +182,35 @@
                             });
 
                             this.fetchAuthUser();
+                        }).catch(error => {
+                            this.loading.profile = false;
+                            let message = error.data.message;
+
+                            if (message instanceof Array === false)
+                            {
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: error.data.message,
+                                });
+                            } else {
+                                let that = this;
+                                message.forEach(function(element) {
+                                    // clear validation for the field
+                                    that.$refs[form].clearValidate(element.field);
+
+                                    // pushes error messages from the response to the validator error bag
+                                    that.errors.profile[element.field] = element.error;
+                                });
+
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: 'Something\'s not right. Please check your inputs',
+                                });
+                            }
                         });
                     } else {
                         return this.$message({
@@ -194,13 +225,44 @@
             changePassword: function (form) {
                 this.$refs[form].validate((valid) => {
                     if (valid) {
+                        this.loading.password = true;
                         return this.$store.dispatch(INIT_UPDATE_AUTH_USER_PASSWORD, this.forms.password).then(response => {
+                            this.loading.password = false;
                             this.$message({
                                 type: response.status,
                                 showClose: true,
                                 duration: 10000,
                                 message: response.message,
                             });
+                        }).catch(error => {
+                            this.loading.password = false;
+                            let message = error.data.message;
+
+                            if (message instanceof Array === false)
+                            {
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: error.data.message,
+                                });
+                            } else {
+                                let that = this;
+                                message.forEach(function(element) {
+                                    // clear validation for the field
+                                    that.$refs[form].clearValidate(element.field);
+
+                                    // pushes error messages from the response to the validator error bag
+                                    that.errors.password[element.field] = element.error;
+                                });
+
+                                this.$message({
+                                    type: 'error',
+                                    showClose: true,
+                                    duration: 10000,
+                                    message: 'Something\'s not right. Please check your inputs',
+                                });
+                            }
                         });
                     } else {
                         return this.$message({
