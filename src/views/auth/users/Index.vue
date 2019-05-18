@@ -1,6 +1,6 @@
 <template>
     <el-main>
-        <el-row>
+        <el-row style="padding: 10px 0;">
             <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
                 <el-card>
                     <div slot="header" class="clearfix">
