@@ -90,12 +90,7 @@ export default {
     },
     [INIT_UPDATE_AUTH_USER_PROFILE]: ({getters, commit}, payload) => {
         return new Promise((resolve, reject) => {
-            HTTP.put('auth/user/update',
-                {
-                    name: payload.name,
-                    email: payload.email,
-                    image_select: payload.image_select,
-                },
+            HTTP.put('auth/user/update', payload,
                 {
                     headers: {
                         'Authorization': getters[GET_AUTH_TOKEN]
@@ -111,12 +106,7 @@ export default {
     },
     [INIT_UPDATE_AUTH_USER_PASSWORD]: ({getters, commit}, payload) => {
         return new Promise((resolve, reject) => {
-            HTTP.put('auth/user/password/update',
-                {
-                    current_password: payload.current_password,
-                    password: payload.password,
-                    password_confirmation: payload.password_confirmation
-                },
+            HTTP.put('auth/user/password/update', payload,
                 {
                     headers: {
                         'Authorization': getters[GET_AUTH_TOKEN]
