@@ -13,6 +13,7 @@
                     <i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item :command="{method: 'routePush', params: {name: 'users.profile'}}">Profile</el-dropdown-item>
                     <el-dropdown-item :command="{method: 'logout', params: {}}">Logout</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
@@ -46,6 +47,9 @@
             },
             handleCommands: function (command) {
                 this[command.method](command.params);
+            },
+            routePush: function (route) {
+                return this.$router.push(route);
             },
             logout: function () {
                 return this.$store.dispatch(INIT_LOGOUT_AUTH_USER).then(response => {
