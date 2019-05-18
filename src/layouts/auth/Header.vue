@@ -9,7 +9,7 @@
         <el-menu-item index="logout" route="#" style="float: right">
             <el-dropdown @command="handleCommands" trigger="click">
                 <span>
-                    <img src="/images/user-avatar.png" alt="User Image" class="img-circle" style="height: 35px;width: 35px;border-radius: 50%">
+                    <img :src="auth.image === null ? base_url + 'images/user-avatar.png' : auth.image" alt="User Image" class="img-circle" style="height: 35px;width: 35px;object-fit: cover;border-radius: 50%">
                     <i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
@@ -27,8 +27,11 @@
     export default {
         name: "auth-header",
         computed: {
+            auth: function () {
+                return this.$store.state['auth_object'];
+            },
             authRole: function () {
-                return this.$store.state['auth_object']['role'];
+                return this.auth['role'];
             },
             homeRoute: function () {
                 let that = this;
