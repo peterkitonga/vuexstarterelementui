@@ -26,6 +26,11 @@
 
     export default {
         name: "auth-header",
+        data: function() {
+            return {
+                base_url: process.env.BASE_URL,
+            }
+        },
         computed: {
             auth: function () {
                 return this.$store.state['auth_object'];
